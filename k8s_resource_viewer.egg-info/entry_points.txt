@@ -1,0 +1,2 @@
+[console_scripts]
+k8s-viewer = k8s_resource_viewer.main:main

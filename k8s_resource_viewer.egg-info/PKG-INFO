@@ -1,0 +1,94 @@
+Metadata-Version: 2.1
+Name: k8s-resource-viewer
+Version: 0.1.0
+Summary: Interactive terminal-based Kubernetes cluster resource viewer
+Home-page: https://github.com/yourusername/k8s-resource-viewer
+Author: Bakhtiar Hamid
+Keywords: kubernetes,resources,monitoring,terminal,curses
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console :: Curses
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: System :: Monitoring
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: windows-curses; platform_system == "Windows"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: isort>=5.0.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+
+# Kubernetes Resource Viewer
+
+An interactive terminal-based application for exploring and visualizing Kubernetes cluster node and pod resources.
+
+## Features
+
+- Interactive terminal UI using curses
+- Real-time resource metrics
+- Node group exploration
+- Detailed node and pod information
+- Resource usage visualization
+- Live data refresh
+
+## Requirements
+
+- Python 3.8 or higher
+- Active Kubernetes configuration
+- `kubectl` CLI tool installed and configured
+- Unicode-compatible terminal
+
+## Installation
+
+1. Install from source:
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/k8s-resource-viewer.git
+cd k8s-resource-viewer
+
+# Install in development mode
+pip install -e .
+```
+
+2. Or install directly using pip:
+```bash
+pip install k8s-resource-viewer
+```
+
+## Usage
+
+Simply run:
+```bash
+k8s-viewer
+```
+
+### Navigation
+
+- Use ↑/↓ arrows to navigate
+- Enter to select/view details
+- 'r' to refresh data
+- 'q' to go back/quit
+- 'd' to view detailed description
+
+## Development
+
+1. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Unix/macOS
+```
+
+2. Install development dependencies:
+```bash
+pip install -e ".[dev]"
+```
+
+## License
+
+MIT License - see LICENSE file for details.

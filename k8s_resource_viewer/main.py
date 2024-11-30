@@ -642,7 +642,7 @@ class K8sViewer:
         current_pos = 0
 
         while True:
-            stdscr.clear()
+            stdscr.erase()  # Use erase instead of clear for less flicker
 
             # Draw title with better instructions
             self.draw_title_bar(
@@ -721,7 +721,9 @@ class K8sViewer:
             summary = f"Total pods: {len(pods)} | Last updated: {timestamp}"
             stdscr.addstr(max_y-1, 2, summary)
 
-            stdscr.refresh()
+            # Stage all changes before refreshing
+            stdscr.noutrefresh()
+            curses.doupdate()  # Update screen once
 
             # Handle input
             key = stdscr.getch()
@@ -873,7 +875,7 @@ class K8sViewer:
 
         while True:
             if nodes:  # Only try to display if we have nodes
-                stdscr.clear()
+                stdscr.erase()  # Use erase instead of clear for less flicker
 
                 # Draw title with better instructions
                 self.draw_title_bar(
@@ -932,7 +934,9 @@ class K8sViewer:
                 msg = "No nodes found in this group"
                 stdscr.addstr(max_y//2, (max_x-len(msg))//2, msg)
 
-            stdscr.refresh()
+            # Stage all changes before refreshing
+            stdscr.noutrefresh()
+            curses.doupdate()  # Update screen once
 
             # Handle input
             key = stdscr.getch()
@@ -1156,7 +1160,9 @@ class K8sViewer:
                     else:
                         stdscr.addstr(i, 0, line[:width-1])
 
-                stdscr.refresh()
+                # Stage all changes before refreshing
+                stdscr.noutrefresh()
+                curses.doupdate()  # Update screen once
 
                 # Handle keyboard input
                 key = stdscr.getch()
@@ -1256,7 +1262,9 @@ class K8sViewer:
                     else:
                         stdscr.addstr(i, 0, line[:width-1])
 
-                stdscr.refresh()
+                # Stage all changes before refreshing
+                stdscr.noutrefresh()
+                curses.doupdate()  # Update screen once
 
                 # Handle keyboard input
                 key = stdscr.getch()
@@ -1301,9 +1309,9 @@ class K8sViewer:
         curses.init_pair(1, curses.COLOR_WHITE, -1)  # -1 means default background
         stdscr.bkgd(' ', curses.color_pair(1))
 
-        # Set non-blocking input with a small timeout
-        stdscr.nodelay(1)  # Make getch() non-blocking
-        stdscr.timeout(50)  # 50ms timeout
+        # Enable double buffering to reduce flicker
+        stdscr.immedok(False)  # Disable immediate refresh
+        stdscr.timeout(100)  # Increase timeout to 100ms to reduce CPU usage
 
         try:
             # Display main menu
@@ -1317,11 +1325,13 @@ class K8sViewer:
             error_msg = f"Error: {str(e)}"
             height, width = stdscr.getmaxyx()
             stdscr.addstr(height//2, (width-len(error_msg))//2, error_msg)
-            stdscr.refresh()
+            stdscr.noutrefresh()  # Stage changes
+            curses.doupdate()  # Update screen once
             time.sleep(2)
         finally:
             # Reset terminal state
-            stdscr.nodelay(0)  # Reset back to blocking mode
+            stdscr.immedok(True)  # Reset immediate mode
+            stdscr.timeout(-1)  # Reset to blocking mode
 
     def handle_pod_search(self, stdscr):
         """Handle pod search functionality"""
@@ -1454,7 +1464,9 @@ class K8sViewer:
                     else:
                         stdscr.addstr(i, 0, line[:width-1])
 
-                stdscr.refresh()
+                # Stage all changes before refreshing
+                stdscr.noutrefresh()
+                curses.doupdate()  # Update screen once
 
                 # Handle keyboard input
                 key = stdscr.getch()

@@ -28,6 +28,11 @@ A terminal-based interactive UI for viewing and exploring Kubernetes cluster res
   - Quick access to details with Enter key
   - Easy return to previous views
 
+- **Performance Optimizations**
+  - Efficient screen rendering and resource usage
+  - Smart caching system for reduced API calls
+  - Smooth navigation and display updates
+
 ## Requirements
 
 - Python 3.8+
@@ -159,6 +164,10 @@ Context Menu:
    - Easy switching between contexts
    - Automatic resource refresh
 
+## Documentation
+
+For detailed information about changes and improvements in each version, please see [CHANGES.md](CHANGES.md).
+
 ## Error Handling
 
 - Graceful handling of kubectl command failures
@@ -192,11 +201,6 @@ Contributions are welcome! Please feel free to submit pull requests.
    - Check terminal size requirements
    - Ensure curses support
    - Verify color terminal support
-
-3. **Performance**
-   - Consider cluster size
-   - Check network connectivity
-   - Monitor resource usage
 
 ## Support
 

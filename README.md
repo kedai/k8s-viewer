@@ -86,6 +86,35 @@ A terminal-based interactive UI for viewing and exploring Kubernetes cluster res
 
 ## Usage
 
+### Command Line Options
+
+```bash
+k8s-viewer [options]
+```
+
+Options:
+- `--log-level {debug,info,warning,error}` - Set logging level (default: info)
+- `--log-dir PATH` - Custom log directory path
+- `--ttl SECONDS` - Cache TTL in seconds (default: 30)
+- `--no-cache` - Disable caching
+- `--cache-dir PATH` - Custom cache directory path
+
+### Environment Variables
+
+- `K8S_VIEWER_LOG_LEVEL` - Set logging level (debug, info, warning, error)
+- `K8S_VIEWER_LOG_DIR` - Custom log directory path
+- `K8S_VIEWER_CACHE_TTL` - Cache TTL in seconds
+- `K8S_VIEWER_CACHE_ENABLED` - Enable/disable caching (0/1)
+- `K8S_VIEWER_CACHE_DIR` - Custom cache directory path
+
+### Default Log Locations
+
+The application logs are stored in platform-specific locations:
+
+- **Linux**: `~/.local/state/k8s-viewer/logs/k8s_viewer.log`
+- **macOS**: `~/Library/Logs/k8s-viewer/k8s_viewer.log`
+- **Windows**: `%LOCALAPPDATA%\k8s-viewer\logs\k8s_viewer.log`
+
 ### Keyboard Shortcuts
 
 Main Menu:

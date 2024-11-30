@@ -13,11 +13,35 @@ import sys
 import argparse
 
 # Set up logging
-logging.basicConfig(
-    filename='k8s_viewer.log',
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+class Config:
+    LOG_DIR = os.getenv('K8S_VIEWER_LOG_DIR', '~/.k8s_viewer/logs')
+    LOG_FILE = 'k8s_viewer.log'
+    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+def setup_logging(log_level: str):
+    """Configure logging with the specified level"""
+    level_map = {
+        'debug': logging.DEBUG,
+        'info': logging.INFO,
+        'warning': logging.WARNING,
+        'error': logging.ERROR
+    }
+    level = level_map.get(log_level.lower(), logging.INFO)
+    
+    # Ensure log directory exists
+    log_dir = os.path.expanduser(Config.LOG_DIR)
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Set up log file path
+    log_file = os.path.join(log_dir, Config.LOG_FILE)
+    
+    logging.basicConfig(
+        filename=log_file,
+        level=level,
+        format=Config.LOG_FORMAT
+    )
+    logging.info(f"Logging to: {log_file}")
+    logging.info(f"Log level set to: {logging.getLevelName(level)}")
 
 @contextmanager
 def loading_indicator(stdscr, message):
@@ -1524,11 +1548,29 @@ def parse_args():
         help='Cache directory path. Can also be set via K8S_VIEWER_CACHE_DIR env var.'
     )
 
+    log_group = parser.add_argument_group('Logging Settings')
+    log_group.add_argument(
+        '--log-level',
+        type=str,
+        choices=['debug', 'info', 'warning', 'error'],
+        default=os.getenv('K8S_VIEWER_LOG_LEVEL', 'info'),
+        help='Set logging level. Can also be set via K8S_VIEWER_LOG_LEVEL env var.'
+    )
+    log_group.add_argument(
+        '--log-dir',
+        type=str,
+        default=Config.LOG_DIR,
+        help='Log directory path. Can also be set via K8S_VIEWER_LOG_DIR env var.'
+    )
+
     return parser.parse_args()
 
 def main():
     """Main entry point"""
     args = parse_args()
+    
+    # Configure logging
+    setup_logging(args.log_level)
 
     # Check if cache is disabled via environment variable
     cache_enabled = not args.no_cache and os.getenv('K8S_VIEWER_CACHE_ENABLED', '1') != '0'

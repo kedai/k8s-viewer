@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Double buffering for smoother screen rendering
 - Configurable screen refresh rates
 - Optimized terminal state management
+- Status line showing full group name for truncated entries
 
 ### Changed
 - Improved screen rendering performance
@@ -21,11 +22,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced terminal state handling
   - Better cleanup on exit
   - Improved resize event handling
+- Made group name display more compact while preserving readability
+  - Reduced group column width
+  - Added truncation with "..." for long names
+  - Show full name in status line when highlighted
 
 ### Fixed
 - Screen flickering in sub-screen displays
 - Visual artifacts during screen transitions
 - Excessive CPU usage from frequent screen refreshes
+- Truncated group names in main display
+- Navigation keys not working in main menu
+  - Fixed up/down arrow key handling
+  - Added support for both uppercase and lowercase 'j'/'k' keys
+  - Corrected cursor position management
 
 ## [0.1.0] - Initial Release
 

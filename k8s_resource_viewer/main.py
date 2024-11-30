@@ -1196,13 +1196,13 @@ class K8sViewer:
 
         while True:
             try:
-                stdscr.clear()
+                stdscr.erase()  # Use erase instead of clear for less flicker
                 height, width = stdscr.getmaxyx()
 
                 # Get current context
                 try:
                     current_context = subprocess.run(['kubectl', 'config', 'current-context'], 
-                                                   capture_output=True, text=True, check=True).stdout.strip()
+                                               capture_output=True, text=True, check=True).stdout.strip()
                 except subprocess.CalledProcessError:
                     current_context = "Unknown"
 
@@ -1218,7 +1218,8 @@ class K8sViewer:
 
                 if not node_groups:
                     stdscr.addstr(5, 0, "No node groups found")
-                    stdscr.refresh()
+                    stdscr.noutrefresh()
+                    curses.doupdate()
                     key = stdscr.getch()
                     if key in [ord('q'), ord('Q')]:
                         break
@@ -1237,18 +1238,25 @@ class K8sViewer:
                     continue
 
                 # Column headers
-                headers = ["Group Name", "Nodes", "CPU (Used/Total)", "Memory (Used/Total)", "Age"]
-                header_line = "{:<40} {:<8} {:<20} {:<20} {:<8}".format(*headers)
+                headers = ["Group", "Nodes", "CPU (Used/Total)", "Memory (Used/Total)", "Age"]
+                header_line = "{:<20} {:<8} {:<20} {:<20} {:<8}".format(*headers)
                 stdscr.addstr(5, 0, header_line[:width-1])
 
                 # Display node groups
                 display_start = max(0, current_pos - height + 9)
                 for i, group in enumerate(node_groups[display_start:], start=6):
-                    if i >= height - 1:
+                    if i >= height - 2:  # Reserve last line for full group name
                         break
 
-                    line = "{:<40} {:<8} {:<20} {:<20} {:<8}".format(
-                        group['name'][:40],
+                    # Truncate group name if needed
+                    group_name = group['name']
+                    if len(group_name) > 20:
+                        display_name = group_name[:17] + "..."
+                    else:
+                        display_name = group_name
+
+                    line = "{:<20} {:<8} {:<20} {:<20} {:<8}".format(
+                        display_name,
                         str(group['count']),
                         f"{group['used_cpu']}/{group['total_cpu']}",
                         f"{group['used_memory']}/{group['total_memory']}",
@@ -1259,30 +1267,33 @@ class K8sViewer:
                         stdscr.attron(curses.A_REVERSE)
                         stdscr.addstr(i, 0, line[:width-1])
                         stdscr.attroff(curses.A_REVERSE)
+                        
+                        # Show full group name in status line
+                        if len(group_name) > 20:
+                            status_line = f"Selected Group: {group_name}"
+                            stdscr.addstr(height-1, 0, " " * (width-1))  # Clear status line
+                            stdscr.addstr(height-1, 0, status_line[:width-1])
                     else:
                         stdscr.addstr(i, 0, line[:width-1])
 
                 # Stage all changes before refreshing
                 stdscr.noutrefresh()
-                curses.doupdate()  # Update screen once
+                curses.doupdate()
 
                 # Handle keyboard input
                 key = stdscr.getch()
-                if key == -1:  # No input available
-                    continue
-
-                if key in [ord('q'), ord('Q')]:
+                if key == ord('q'):
                     break
-                elif key in [curses.KEY_UP, ord('k')]:
-                    current_pos = max(0, current_pos - 1)
-                elif key in [curses.KEY_DOWN, ord('j')]:
-                    current_pos = min(max_pos, current_pos + 1)
-                elif key in [curses.KEY_ENTER, ord('\n'), ord('\r')]:
-                    if node_groups:
-                        selected_group = node_groups[current_pos]
-                        nodes = self.get_nodes(selected_group['name'], stdscr)
-                        if nodes:
-                            self.display_nodes(stdscr, nodes)
+                elif key in [curses.KEY_UP, ord('k'), ord('K')]:
+                    if current_pos > 0:
+                        current_pos -= 1
+                        if current_pos < display_start:
+                            display_start = current_pos
+                elif key in [curses.KEY_DOWN, ord('j'), ord('J')]:
+                    if current_pos < len(node_groups) - 1:
+                        current_pos += 1
+                        if current_pos >= display_start + height - 8:
+                            display_start = current_pos - height + 8
                 elif key in [ord('s'), ord('S')]:
                     self.handle_pod_search(stdscr)
                 elif key in [ord('c'), ord('C')]:
@@ -1291,10 +1302,18 @@ class K8sViewer:
                     node_groups = self.get_node_groups(stdscr)
                     max_pos = len(node_groups) - 1 if node_groups else 0
                     current_pos = min(current_pos, max_pos)
+                    display_start = max(0, current_pos - height + 9)
                 elif key in [ord('r'), ord('R')]:
                     node_groups = self.get_node_groups(stdscr)
                     max_pos = len(node_groups) - 1 if node_groups else 0
                     current_pos = min(current_pos, max_pos)
+                    display_start = max(0, current_pos - height + 9)
+                elif key in [curses.KEY_ENTER, ord('\n'), ord('\r')]:
+                    if node_groups:
+                        selected_group = node_groups[current_pos]
+                        nodes = self.get_nodes(selected_group['name'], stdscr)
+                        if nodes:
+                            self.display_nodes(stdscr, nodes)
 
             except curses.error:
                 stdscr.clear()
